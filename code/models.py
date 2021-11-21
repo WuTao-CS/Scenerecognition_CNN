@@ -71,7 +71,6 @@ class YourModel(tf.keras.Model):
               Dropout(rate=0.15),
               Conv2D(filters=128, kernel_size=5, activation="relu", padding="same"),
               MaxPool2D(pool_size=(3, 3), strides=2, padding="valid"),
-
               Conv2D(filters=256, kernel_size=5, activation="relu", padding="same"),
               Dropout(rate=0.15),
               Conv2D(filters=256, kernel_size=5, activation="relu", padding="same"),
@@ -88,9 +87,9 @@ class YourModel(tf.keras.Model):
     def call(self, x):
        """ Passes input image through the network. """
 
-       # for layer in self.architecture:
-       #        x = layer(x)
-       x = self.architecture(x)
+       for layer in self.architecture:
+              x = layer(x)
+       # x = self.architecture(x)
        return x
 
     @staticmethod
