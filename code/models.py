@@ -9,15 +9,7 @@ from tensorflow.keras.layers import \
     Conv2D, MaxPool2D, Dropout, Flatten, Dense
 
 import hyperparameters as hp
-from tensorflow.keras.layers import (
-    Conv2D,
-    MaxPool2D,
-    Dropout,
-    Flatten,
-    Dense,
-    BatchNormalization,
-    GlobalAveragePooling2D,
-)
+from tensorflow.keras.layers import Conv2D,MaxPool2D,Dropout,Flatten,Dense,BatchNormalization,GlobalAveragePooling2D
 
 
 class YourModel(tf.keras.Model):
@@ -87,9 +79,9 @@ class YourModel(tf.keras.Model):
     def call(self, x):
        """ Passes input image through the network. """
 
-       for layer in self.architecture:
-              x = layer(x)
-       # x = self.architecture(x)
+       # for layer in self.architecture:
+       #        x = layer(x)
+       x = self.architecture(x)
        return x
 
     @staticmethod

@@ -53,7 +53,8 @@
 \usepackage{microtype}
 \usepackage{times}
 \usepackage{booktabs}
-
+\usepackage{subfigure}
+\usepackage{float}
 % python code format: https://github.com/olivierverdier/python-latex-highlighting
 \usepackage{pythonhighlight}
 
@@ -90,12 +91,12 @@
 
 \section*{Project Overview}
 
-In this project, we attempted to classify scenes on the 15-classified Scence dataset using a convolutional neural network. We used two main approaches to accomplish this task. First, we tried to define and implement a convolutional neural network ourselves, and trained it on the Scence dataset from scratch. We achieved a maximum accuracy of \textbf{82.04\%} on the validation set. In addition, we also tried fine-tuning the scene recognition task on a given Scene dataset using a VGG-F model pre-trained on ImageNet, and achieved a maximum accuracy of \textbf{89.88\%} on the validation set.
+In this project, we attempted to classify scenes on the 15-classified Scence dataset using a convolutional neural network. We used two main approaches to accomplish this task. First, we tried to define and implement a convolutional neural network ourselves, and trained it on the Scence dataset from scratch. We achieved a maximum accuracy of \textbf{82.04\%} on the validation set. In addition, we also tried fine-tuning the scene recognition task on a given Scene dataset using a VGG-F model pre-trained on ImageNet, and achieved a maximum accuracy of \textbf{89.88\%} on the validation set. 
 
 \section*{Implementation Detail}
 
 \subsection*{Task 1}
-\emph{your\_model}: below is the \textit{your\_model} code snippets. The final CNN structures contains 6 Conv2D layers with number of filters increase from 64 to 256. Every Conv2D layer is followed by one Dropout layer to avoid overfitting, and after every two Conv2D layers, one MaxPool2D layer is added. The final Conv2D layer is followed by a GlobalAveragePooling2D layer. This layer will average values each channel and thus no flatten layer is needed. Then one Dense layer is followed by one Dropout layer to avoid overfitting and one BatchNotmalization layer is added before the final prediction Dense layer.  The activation functions for each layer are relu except for the final layer, which is softmax to calculate the prediction probability.
+\emph{your\_model}: below is the \textit{your\_model} code snippets. The final CNN structures contains 6 Conv2D layers with number of filters increase from 64 to 256. Every Conv2D layer is followed by one Dropout layer to avoid overfitting, and after every two Conv2D layers, one MaxPool2D layer is added. The final Conv2D layer is followed by a GlobalAveragePooling2D layer. This layer will average values each channel and thus no flatten layer is needed. Then one Dense layer is followed by one Dropout layer to avoid overfitting and one BatchNotmalization layer is added before the final prediction Dense layer. The activation functions for each layer are relu except for the final layer, which is softmax to calculate the prediction probability. The total number of parameters in the model is 3,250,255, which is much smaller than the limit of 15 million parameters.
 \begin{python}
 self.optimizer = tf.keras.optimizers.Adam(hp.learning_rate)
 
@@ -113,45 +114,33 @@ self.architecture = [
               Dropout(rate=0.15),
               Conv2D(filters=256, kernel_size=5, activation="relu", padding="same"),
               MaxPool2D(pool_size=(3, 3), strides=2, padding="valid"),
-
               Dropout(rate=0.15),
               GlobalAveragePooling2D(),
               Dense(256, activation="relu"),
               BatchNormalization(),
               Dropout(rate=0.5),
-              Dense(hp.num_classes, activation="softmax"),
-       ]
-
+              Dense(hp.num_classes, activation="softmax")]
 ### loss definition
-
 loss = tf.keras.losses.sparse_categorical_crossentropy(labels, predictions)
 \end{python}
 
 \subsection*{Task 2}
 Local Interpretable Model-agnostic Explanation (LIME) can explain how the input features of a machine learning model affect its predictions. For image classification tasks, LIME finds the region of an image (set of superpixels) with the strongst association with a prediction label.
 
+\emph{Example 1}: The LIME plots are shown in Fig. \ref{fig:LIME_1}. The image is falsely classified as \emph{OpenCountry} while the ground truth label is \emph{Coast}. From the LIME plots, we can see that the super pixels focus mainly on the sky and the mountains, ignoring the widespread ocean and sandy beaches that surround them, and that the waves are calmer and closer to the fields from a greyscale perspective. That is why the model would classify this image into \emph{OpenCountry} rather than \emph{Coast}.
+\emph{Example 2}: The LIME plots are shown in Fig. \ref{fig:LIME_2}. The image is falsely classified as \emph{Tall building} while the ground truth label is \emph{Industrial}. From the LIME plots, we could see that the superpixels are mainly focused on a shelf in the middle that is taller and that the exterior of this shelf resembles, to some extent, a building in the city. It ignores the environment of the surrounding factory. That is why the model would classify this image into \emph{Tall building} rather than \emph{Industrial}.
+
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.4\linewidth]{lame_1_Map each explanation weight to the corresponding superpixel.png}
-    \includegraphics[width=0.4\linewidth]{lame_1_Pros(green) and Cons(red).png}
-    \includegraphics[width=0.4\linewidth]{lame_1_Top 5 superpixels.png}
-    \includegraphics[width=0.4\linewidth]{lame_1_Top 5 with the rest of the image present.png}
-    \caption{LIME plots for the first falsely categorized image, predicted as \emph{Tall building} but ground truth is \emph{Suburb}}
+    \includegraphics[width=0.85\linewidth]{Lime_1.png}
+    \caption{LIME plots for the first falsely categorized image, predicted as \emph{OpenCountry} but ground truth is \emph{Coast}}
     \label{fig:LIME_1}
 \end{figure}
 
-\emph{Example 1}: The LIME plots are shown in Fig. \ref{fig:LIME_1}. The image is falsely classified as \emph{Tall building} while the ground truth label is \emph{Suburb}. From the LIME plots, we could see that superpixels are mainly focused on the building and ignored the environment. That is why the model would classify this image into \emph{Tall building} rather than \emph{Suburb}.
-
-
-\emph{Example 2}: The LIME plots are shown in Fig. \ref{fig:LIME_2}. The image is falsely classified as \emph{Open Country} while the ground truth label is \emph{Highway}. From the LIME plots, we could see that superpixels are mainly focused on the sky and wide ground. It ignores a large part of the highway. That is why the model would classify this image into \emph{Open Country} rather than \emph{Highway}.
-
 \begin{figure}[htbp]
     \centering
-    \includegraphics[width=0.49\linewidth]{lame_2_Map each explanation weight to the corresponding superpixel.png}
-    \includegraphics[width=0.49\linewidth]{lame_2_Pros(green) and Cons(red).png}
-    \includegraphics[width=0.49\linewidth]{lame_2_Top 5 superpixels.png}
-    \includegraphics[width=0.49\linewidth]{lame_2_Top 5 with the rest of the image present.png}
-    \caption{LIME plots for the second falsely categorized image, predicted as \emph{Open Country} but ground truth is \emph{Highway}}
+    \includegraphics[width=0.85\linewidth]{Lime_2.png}
+    \caption{LIME plots for the second falsely categorized image, predicted as \emph{tallbuilding} but ground truth is \emph{Industrial}}
     \label{fig:LIME_2}
 \end{figure}
 
